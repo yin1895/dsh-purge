@@ -1,8 +1,8 @@
 {
   "name": "dsh-purge",
-  "version": "1.1.92",
-  "description": "DeepSeek Harness 破甲：让所有模型都能破甲，不同模型可换不同提示词；默认提示词面向国模「小码酱」。Jailbreak for every model — swap prompts per model. 求 Star 收藏 ⭐ 如要二开，请查看署名要求部分",
-  "author": "dsh-purge maintainers",
+  "version": "1.1.92-self.1",
+  "description": "DeepSeek Harness 破甲（yin1895 二开自维护版，基线 HunYiSage/dsh-purge v1.1.92 + 上游 1.1.71 能力回填）。Jailbreak for every model — swap prompts per model. 二次开发：能力对齐与客户端适配见 DERIVATION.md；上游署名要求见 README。",
+  "author": "dsh-purge maintainers; self-maintained fork by yin1895",
   "type": "module",
   "main": "lib/index.js",
   "exports": {
@@ -33,7 +33,9 @@
     "README.md",
     "README.zh-CN.md",
     "LICENSE",
-    "NOTICE"
+    "NOTICE",
+    "README.ja.md",
+    "DERIVATION.md"
   ],
   "scripts": {
     "embed-prompt": "node scripts/embed-default-prompt.mjs",
@@ -58,11 +60,11 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/HunYiSage/dsh-purge.git"
+    "url": "git+https://github.com/yin1895/dsh-purge.git"
   },
-  "homepage": "https://github.com/HunYiSage/dsh-purge#readme",
+  "homepage": "https://github.com/yin1895/dsh-purge#readme",
   "bugs": {
-    "url": "https://github.com/HunYiSage/dsh-purge/issues"
+    "url": "https://github.com/yin1895/dsh-purge/issues"
   },
   "dsh": {
     "bundle": {
@@ -81,9 +83,9 @@
     },
     "install": {
       "preferred": "tarball",
-      "tarball": "https://codeload.github.com/HunYiSage/dsh-purge/tar.gz/refs/heads/master",
-      "zip": "https://codeload.github.com/HunYiSage/dsh-purge/zip/refs/heads/master",
-      "git": "https://github.com/HunYiSage/dsh-purge.git"
+      "tarball": "https://codeload.github.com/yin1895/dsh-purge/tar.gz/refs/heads/master",
+      "zip": "https://codeload.github.com/yin1895/dsh-purge/zip/refs/heads/master",
+      "git": "https://github.com/yin1895/dsh-purge.git"
     }
   },
   "publishConfig": {
@@ -95,9 +97,10 @@
   "engines": {
     "node": ">=18"
   },
-  "dshTarget": "0.2.1-rc.5",
+  "dshTarget": "0.2.1-rc.3",
   "dshTargets": [
-    "0.2.1-rc.5",
-    "0.2.1-rc.2"
+    "0.2.1-rc.3",
+    "0.2.1-rc.2",
+    "0.2.1-rc.5"
   ]
 }

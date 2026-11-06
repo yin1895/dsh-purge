@@ -36,7 +36,8 @@ dsh-purge was originally developed by its author as an independent project. It i
 The project's boundaries remain unchanged:
 
 - **The open-source build includes everything sold as paid content.** The skill library and knowledge base ship with it; nothing is locked behind payment.
-- Penetration, attack, or scanning against mainland China, Hong Kong and Macau, banks and financial sites, government and military sites is prohibited.
+- Scope block (1.1.71 parity): mainland China / Hong Kong / Macau addresses and banks or financial sites are blocked by the built-in gate. **The exact IP or full hostname you register in the own-servers list is the exception** — this fork restored that exception (upstream 1.1.92 had dropped the allowlist and additionally blocked government/military domains worldwide).
+- **This repository is a self-maintained derivative.** Base: [HunYiSage/dsh-purge](https://github.com/HunYiSage/dsh-purge) v1.1.92; capability backfill from upstream v1.1.71. Maintenance entry point: [yin1895/dsh-purge](https://github.com/yin1895/dsh-purge). See [DERIVATION.md](./DERIVATION.md).
 
 **About the paid content.** Everything the paid build includes is included in the open-source build. No feature or data in this repository requires payment to unlock; the skill library and knowledge base are part of the open-source release.
 
@@ -419,7 +420,7 @@ The first time you open Drill you read the notice, wait out the countdown, scrol
 
 **Local lab**
 
-Penetration, attack, or scanning against mainland China, Hong Kong and Macau, banks and financial sites, government and military sites is prohibited.
+Mainland China / Hong Kong / Macau addresses and banks or financial sites are blocked by default; the own-servers list entry is the only exception.
 
 | Area | What it shows |
 |---|---|
@@ -428,7 +429,7 @@ Penetration, attack, or scanning against mainland China, Hong Kong and Macau, ba
 | Drill | assets and environment after authorization. The skill library and knowledge base ship with it. The tab says Unauthorized until then |
 | Patches | grouped status, Apply, Restore, or Uninstall |
 | Prompt | edit `prompt-inject.md` as the session override |
-| Local lab | penetration of mainland China / Hong Kong / Macau, banks, government and military sites is prohibited |
+| Own servers | blocked by default: mainland China / Hong Kong / Macau, banks and financial sites. A registered exact IP or hostname is the only exception |
 | Rule sets | multiple `AGENTS.md` / `CLAUDE.md`; Enable writes under `$DSH_HOME`, Delete removes the row |
 
 ---
@@ -495,7 +496,7 @@ Restart `dsh web` to load the profile. The model and reasoning defaults apply to
 
 ### Local lab
 
-Penetration, attack, or scanning against mainland China, Hong Kong and Macau, banks and financial sites, government and military sites is prohibited.
+Mainland China / Hong Kong / Macau addresses and banks or financial sites are blocked by default; the own-servers list entry is the only exception.
 
 ---
 
