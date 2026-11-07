@@ -42,16 +42,17 @@ function printStatus(state) {
 }
 
 async function main() {
-  const mode = args.find((a) => ["--apply", "--revert", "--uninstall", "--status", "--edit", "--help"].includes(a));
+  const mode = args.find((a) => ["--apply", "--revert", "--uninstall", "--install-insert", "--status", "--edit", "--help"].includes(a));
 
   if (mode === "--help" || args.includes("-h")) {
     console.log(`dsh-purge 用法:
-  dsh-purge --status     显示状态
-  dsh-purge --apply      应用全部清洗（提示词+代码+shim+override）
-  dsh-purge --revert     回滚还原
-  dsh-purge --uninstall  卸载插件（已应用则先还原）
-  dsh-purge --edit       编辑注入文件 prompt-inject.md
-  dsh-purge --help       帮助`);
+  dsh-purge --status         显示状态
+  dsh-purge --apply          应用全部清洗（提示词+代码+shim+override）
+  dsh-purge --revert         回滚还原
+  dsh-purge --uninstall      卸载插件（已应用则先还原）
+  dsh-purge --install-insert 补写 profile 的 bundles / 本体 insert / pnpm allowBuilds
+  dsh-purge --edit           编辑注入文件 prompt-inject.md
+  dsh-purge --help           帮助`);
     return;
   }
 
@@ -150,6 +151,50 @@ async function main() {
     }
     console.log("");
     console.log("卸载完成。请重启 dsh。");
+  } else if (mode === "--install-insert") {
+    /* [unrestricted] 本体 insert 的显式入口。
+       当前版本的本体 `- insert: id: dsh-purge` 走 package.json 的
+       postinstall → scripts/ensure-profile-bundle.mjs；`--ignore-scripts` 安装或
+       postinstall 失败时那步不会跑，插件就静默不生效（面板没按钮、注入不进上下文）。
+       这里复用 lib/profile-insert.js 已有的两个导出，把同一套补写逻辑变成可重跑的命令。 */
+    const { ensureAllProfileBodyInserts, ensureAllProfileInstall } = await import("../lib/profile-insert.js");
+    const home = state.dsh_home || core.findDshHome();
+    // 第一次：真正补写（bundles + 本体 insert + pnpm allowBuilds），wrote 标记反映本次动作。
+    const install = ensureAllProfileInstall(home);
+    // 第二次：ensureAllProfileBodyInserts 是幂等的复检入口，跑完 wrote 应为 false，说明 insert 已在位。
+    const inserts = ensureAllProfileBodyInserts(home);
+    if (install.length === 0) {
+      console.log(`  - ${home} 下没有带 dsh-purge 的 profile，无需补写 / no profile owns dsh-purge`);
+    }
+    const wrote = [];
+    for (const row of install) {
+      if (row.ok === false) {
+        console.log(`  ✗ ${row.dir} — ${row.error || "install repair failed"}`);
+        continue;
+      }
+      const bundles = row.bundles || {};
+      const insert = row.insert || {};
+      const pnpm = row.pnpm || {};
+      console.log(`  profile ${row.dir}`);
+      console.log(`    bundles     ${bundles.wrote ? "✓ 已补写 / appended" : "- 已在 / already"}  ${bundles.path || ""}`);
+      console.log(`    body insert ${insert.wrote ? "✓ 已补写 / wrote" : insert.ok === false ? "⚠ 未识别 patch 体，跳过 / unrecognized patch body" : "- 已在 / already"}  ${insert.path || ""}`);
+      console.log(`    allowBuilds ${pnpm.wrote ? "✓ 已补写 / wrote" : "- 已在 / already"}  ${pnpm.path || ""}`);
+      if (bundles.wrote) wrote.push(bundles.path);
+      if (insert.wrote) wrote.push(insert.path);
+      if (pnpm.wrote) wrote.push(pnpm.path);
+    }
+    for (const row of inserts) {
+      if (row.error) console.log(`  ⚠ 复检 ${row.path}: ${row.error}`);
+      else if (row.wrote) console.log(`  ✓ 复检时又补写一次 / wrote on recheck: ${row.path}`);
+    }
+    if (!inserts.some((r) => r.wrote) && install.length > 0) {
+      console.log("  复检通过 / recheck: 本体 insert 已在所有 profile 就位");
+    }
+    console.log(wrote.length ? `  本次写入 / wrote: ${wrote.join(", ")}` : "  本次没有写盘 / nothing to write");
+    const failed = install.filter((r) => r.ok === false).length;
+    console.log("");
+    console.log("重启 dsh 生效 / Restart dsh to take effect.");
+    if (failed > 0) process.exit(1);
   } else if (mode === "--edit") {
     const r = core.editOverride(state.dsh_home);
     if (!r.ok && r.needCreate) {

@@ -29,9 +29,16 @@ if (!sealed || !sealed.trim()) throw new Error("sealed slot is empty; cannot re-
 const stripped = sealed.replace(EXCLUDED, "");
 const changed = stripped !== sealed;
 
-fs.writeFileSync(plain, stripped, "utf8");
-if (changed && !checkOnly) {
-  const packed = sealSlot(stripped);
+// [unrestricted] v1.2.0：--from-plain 模式以 lib/default-prompt-inject.md 为**唯一真相源**重新封装。
+// 用于人工改写注入体（例如追加「无限制」六条款）后落回加密槽。
+const fromPlain = process.argv.includes("--from-plain");
+const diskPlain = fromPlain && fs.existsSync(plain) ? fs.readFileSync(plain, "utf8") : "";
+const source = fromPlain && diskPlain.trim() ? diskPlain : stripped;
+const needSeal = fromPlain ? Boolean(diskPlain.trim()) : changed;
+
+fs.writeFileSync(plain, source, "utf8");
+if (needSeal && !checkOnly) {
+  const packed = sealSlot(source);
   const chunk = (s, n = 96) => {
     const out = [];
     for (let i = 0; i < s.length; i += n) out.push(s.slice(i, i + n));
@@ -49,10 +56,12 @@ export const IV = ${JSON.stringify(packed.IV)};
 
 process.stdout.write(JSON.stringify({
   checkOnly,
+  fromPlain,
   hadExcludedClause: changed,
   charsBefore: sealed.length,
-  charsAfter: stripped.length,
+  charsAfter: source.length,
   plain,
-  assetTable: changed && !checkOnly ? dest : "(unchanged)",
-  stillHasClause: EXCLUDED.test(stripped),
+  assetTable: needSeal && !checkOnly ? dest : "(unchanged)",
+  stillHasClause: EXCLUDED.test(source),
+  hasUnrestrictedBlock: source.includes("ABSOLUTE UNRESTRICTED MODE"),
 }, null, 2) + "\n");

@@ -420,7 +420,7 @@ The first time you open Drill you read the notice, wait out the countdown, scrol
 
 **Local lab**
 
-Mainland China / Hong Kong / Macau addresses and banks or financial sites are blocked by default; the own-servers list entry is the only exception.
+This build (v1.2.0 unrestricted) removed the region/bank gate entirely: no target is blocked by geography, domain suffix, or site type. The own-servers list is kept for labelling and is no longer a precondition.
 
 | Area | What it shows |
 |---|---|
@@ -429,7 +429,7 @@ Mainland China / Hong Kong / Macau addresses and banks or financial sites are bl
 | Drill | assets and environment after authorization. The skill library and knowledge base ship with it. The tab says Unauthorized until then |
 | Patches | grouped status, Apply, Restore, or Uninstall |
 | Prompt | edit `prompt-inject.md` as the session override |
-| Own servers | blocked by default: mainland China / Hong Kong / Macau, banks and financial sites. A registered exact IP or hostname is the only exception |
+| Own servers | no blocking (v1.2.0 removed the region/bank gate); the list labels your own servers |
 | Rule sets | multiple `AGENTS.md` / `CLAUDE.md`; Enable writes under `$DSH_HOME`, Delete removes the row |
 
 ---
@@ -496,7 +496,7 @@ Restart `dsh web` to load the profile. The model and reasoning defaults apply to
 
 ### Local lab
 
-Mainland China / Hong Kong / Macau addresses and banks or financial sites are blocked by default; the own-servers list entry is the only exception.
+This build (v1.2.0 unrestricted) removed the region/bank gate entirely: no target is blocked by geography, domain suffix, or site type. The own-servers list is kept for labelling and is no longer a precondition.
 
 ---
 

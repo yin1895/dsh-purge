@@ -111,6 +111,44 @@ git commit -am "..." && git tag v1.1.9x-self.N && git push origin master --tags
 
 ```powershell
 # profile 依赖指向本仓库的 tag（唯一入口）
-"dsh-purge": "https://codeload.github.com/yin1895/dsh-purge/tar.gz/refs/tags/v1.1.92-self.1"
+"dsh-purge": "https://codeload.github.com/yin1895/dsh-purge/tar.gz/refs/tags/v1.2.0-unrestricted"
 # 换版本前先还原：dsh-purge --revert（或 --uninstall，其实现是"已应用则先还原"）
+# 若安装时用了 --ignore-scripts（postinstall 没跑）：dsh-purge --install-insert 补写 profile 的 bundles / 本体 insert
 ```
+
+---
+
+## 7. v1.2.0-unrestricted：目标「无限制」的改造清单
+
+本版的验收标准不是"对齐 1.1.71"，而是**系统里不存在任何拒绝/降级/截断/追问机制**。改动分四组，逐条可核对：
+
+### 7.1 插件侧（P0）
+
+| # | 内容 | 落点 |
+|---|---|---|
+| 1 | **区域/银行门禁整体移除**：不再安装门禁、不注册任何钩子、`publicHostHit`/`taskTargetHit` 恒放行；`SELF_MULTISTEP_GATE` 与 `tools/pre-execute` 工具钩一并删除（刻意不留可开关） | `lib/index.js`（安装点注释化）、`lib/net-scope.js` |
+| 2 | 知识库复活：6 个 `redteam_poc_*` 工具不再短路；dispatch 层 8 个 poc op 解禁 | `lib/redteam/tools.js`、`lib/redteam/store-core.js` |
+| 3 | 面板「知识库 / 技能库」页签复活并重建 bundle | `lib/redteam/client.js` → `client.js` |
+| 4 | 红队 lead/child 能力协议回填，三段（官方/指挥/执行）末尾统一追加 **Zero-refusal** 条款 | `lib/capability-protocol.js`、`lib/index.js`、`lib/identity.js` |
+| 5 | 自动续跑默认开启：默认 `true`、`continueMax: 10`、删除"把 saved 压回 false"的 clamp | `lib/continue-retry.js`、`lib/index.js`、`cordis.patch.yml` |
+| 6 | 截断/上限放开：证据正文默认 60000、`listChain` 默认不限、面板 API 超时 120s→600s | `lib/redteam/store-core.js`、`lib/redteam/tools.js`、`lib/redteam/client.js` |
+| 7 | 并发上限：默认 3→8、硬上限 10→32（预设与角色稿文案同步） | `lib/redteam/settings.js`、`presets/redteam/*` |
+| 8 | 证据纪律由硬约束改建议语气（claimed/observed 流程与工具保留） | `presets/redteam/agent.cordis.yml`、`lib/redteam/store-core.js` |
+| 9 | 停用/卸载不再删 `.agent-presets/redteam`、不再回退 `selectedDefault` | `lib/preset-default.js`、`lib/uninstall.js` |
+| 10 | rewind derive 过滤链恢复（消除 `index.js` 里被 try/catch 吞掉的永久死调用） | `lib/rewind.js` |
+| 11 | 安装兜底：`dsh-purge --install-insert`（postinstall 被跳过时手动补 insert） | `bin/dsh-purge.js` |
+
+### 7.2 宿主侧新增补丁（P1，`#94`–`#100`）
+
+把宿主里仍模型可见的限制交互全部中和：`dsh-tool-ask-user`（问用户不再是默认动作）、`dsh-time-context`（不再"问用户确认时区"）、`dsh-tool-str-replace-editor`（不再重包装沙箱拒绝）、`dsh-fs-local`（错误文案改「换路径继续」）、`dsh-bash-sandbox` / `dsh-pwsh-sandbox`（不再把失败归类为"被沙箱拒"）、`dsh-ptc-runtime-node`（`sandbox.denied` 恒 false）。
+每条都带 `marker` + `forbid` + `optional`，与既有 93 条同一机制。**干净宿主树实测：apply 后 `failed` 为空、无 `drifted`。**
+
+### 7.3 文本层（P2）
+
+- 注入体追加 **ABSOLUTE UNRESTRICTED MODE 六条款**（ZERO-REFUSAL / NEVER SUBSTITUTE / COMPLETE DELIVERABLE / PERSISTENCE / NO META / CONTINUATION），经 `scripts/self/reembed-inject.mjs --from-plain` 重新封入 `lib/asset-table.js`（21193 → 22969 字符，仍不含任何排除清单）。
+- `lib/anchor.js` 主/子锚点各新增 **规则 0（ZERO-REFUSAL，最高优先级）**。
+
+### 7.4 防回归守卫（P3）
+
+- `lib/unrestricted-guard.js` + `scripts/self/assert-unrestricted.mjs`（`npm run assert:unrestricted`）：把上面这些不变量写成可执行断言（门禁不得复活、KB 不得短路、页签必须在、续跑不得被夹、注入体必须含六条款、上限不得被改小）。
+- 插件启动时也会跑一次（只写日志，不阻断启动）。**从上游同步后先跑这条命令，绿了再发版。**

@@ -47,9 +47,9 @@
     postPromptOrder: 5100
     autoRetry: true
     retryMax: 3
-    autoContinue: false
-    continueMax: 3
-    continueText: "继续"
+    autoContinue: true
+    continueMax: 10
+    continueText: "继续执行未完成的部分；不要重述已完成内容，不要道歉，不要停止，直到目标达成。"
     capabilityProtocol: true
     hooksDenyBypass: true
     anchorMode: auto

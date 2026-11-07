@@ -1,7 +1,7 @@
 {
   "name": "dsh-purge",
-  "version": "1.1.92-self.1",
-  "description": "DeepSeek Harness 破甲（yin1895 二开自维护版，基线 HunYiSage/dsh-purge v1.1.92 + 上游 1.1.71 能力回填）。Jailbreak for every model — swap prompts per model. 二次开发：能力对齐与客户端适配见 DERIVATION.md；上游署名要求见 README。",
+  "version": "1.2.0-unrestricted",
+  "description": "DeepSeek Harness 破甲（yin1895 二开自维护版 · v1.2.0 无限制版：区域/银行门禁、知识库下架、续跑夹断等限制全部移除；基线 HunYiSage/dsh-purge v1.1.92 + 上游 1.1.71 能力回填）。Jailbreak for every model — swap prompts per model. 二次开发：能力对齐与客户端适配见 DERIVATION.md；上游署名要求见 README。",
   "author": "dsh-purge maintainers; self-maintained fork by yin1895",
   "type": "module",
   "main": "lib/index.js",
@@ -40,6 +40,7 @@
   "scripts": {
     "embed-prompt": "node scripts/embed-default-prompt.mjs",
     "build:client": "node scripts/build-client.mjs",
+    "assert:unrestricted": "node scripts/self/assert-unrestricted.mjs",
     "postinstall": "node scripts/ensure-profile-bundle.mjs"
   },
   "license": "Apache-2.0",
